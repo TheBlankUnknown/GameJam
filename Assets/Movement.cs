@@ -1,27 +1,61 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class CapsuleMovement : MonoBehaviour
+[RequireComponent(typeof(Rigidbody))]
+public class PlayerMovement : MonoBehaviour
 {
+    [Header("Movement")]
     public float speed = 6f;
+
+    [Header("Look Input")]
+    [HideInInspector] public Vector2 lookInput; // Camera reads this
 
     private Rigidbody rb;
     private Vector2 moveInput;
+    private Camera cam;
 
-    void Awake()
+    private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        cam = Camera.main;
+
+        if (cam == null)
+            Debug.LogError("No camera found with tag MainCamera!");
     }
 
-    // THIS is what Unity is actually calling
     void OnMove(InputValue value)
     {
         moveInput = value.Get<Vector2>();
     }
 
-    void FixedUpdate()
+    void OnLook(InputValue value)
     {
-        Vector3 movement = new Vector3(moveInput.x, 0f, moveInput.y);
-        rb.linearVelocity = movement * speed;
+        lookInput = value.Get<Vector2>();
+    }
+
+    private void FixedUpdate()
+    {
+        if (rb == null || cam == null) return;
+
+        // Camera-relative movement
+        Vector3 forward = cam.transform.forward;
+        Vector3 right = cam.transform.right;
+        forward.y = 0f;
+        right.y = 0f;
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 moveDir = forward * moveInput.y + right * moveInput.x;
+        moveDir.Normalize();
+
+        // Move player
+        rb.linearVelocity = moveDir * speed;
+
+        // Snap rotation: player always faces camera forward
+        Vector3 cameraForward = cam.transform.forward;
+        cameraForward.y = 0f;
+        cameraForward.Normalize();
+
+        rb.rotation = Quaternion.LookRotation(cameraForward);
     }
 }
