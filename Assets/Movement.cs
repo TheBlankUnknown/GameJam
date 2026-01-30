@@ -10,14 +10,21 @@ public class PlayerMovement : MonoBehaviour
     [Header("Look Input")]
     [HideInInspector] public Vector2 lookInput; // Camera reads this
 
+    [Header("Visuals")]
+    public SimpleWalkBob walkBob;
+
     private Rigidbody rb;
     private Vector2 moveInput;
     private Camera cam;
+
+    // 🔑 added only to support walk bob
+    private bool isMoving;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         cam = Camera.main;
+
         if (cam == null)
             Debug.LogError("No camera found with tag MainCamera!");
     }
@@ -32,6 +39,7 @@ public class PlayerMovement : MonoBehaviour
         lookInput = value.Get<Vector2>();
     }
 
+    // ✅ KEPT — unchanged
     public void ResetLookInput()
     {
         lookInput = Vector2.zero;
@@ -41,8 +49,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (rb == null || cam == null) return;
 
-        // ── Camera-relative movement ────────────────
-        // Get camera's forward and right, project onto XZ plane (y=0)
+        // ── Camera-relative movement (UNCHANGED) ──
         Vector3 camForward = cam.transform.forward;
         Vector3 camRight   = cam.transform.right;
 
@@ -52,28 +59,36 @@ public class PlayerMovement : MonoBehaviour
         camForward.Normalize();
         camRight.Normalize();
 
-        // Now build move direction:
-        // moveInput.y → forward/back (W/S) along camera's look direction (now X-ish)
-        // moveInput.x → left/right (A/D) along camera's right (now Z-ish)
-        Vector3 moveDir = (camForward * moveInput.y) + (camRight * moveInput.x);
+        Vector3 moveDir = camForward * moveInput.y + camRight * moveInput.x;
 
         if (moveDir.sqrMagnitude > 0.001f)
         {
+            isMoving = true;
             moveDir.Normalize();
             rb.linearVelocity = moveDir * speed;
         }
         else
         {
-            // Optional: stop horizontal movement when no input (keeps gravity/falling clean)
+            isMoving = false;
             rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
         }
 
-        // ── Snap player to face camera's horizontal forward direction ──
-        // (player model usually faces +Z, but LookRotation will orient correctly)
-        Vector3 lookDirection = camForward; // already flattened & normalized
+        // ── Rotation (UNCHANGED) ──
+        Vector3 lookDirection = camForward;
         if (lookDirection.sqrMagnitude > 0.001f)
         {
-            rb.rotation = Quaternion.LookRotation(lookDirection) * Quaternion.Euler(0, -90f, 0);
+            rb.rotation =
+                Quaternion.LookRotation(lookDirection)
+                * Quaternion.Euler(0, -90f, 0);
+        }
+    }
+
+    private void Update()
+    {
+        // ✅ ONLY NEW BEHAVIOR
+        if (walkBob != null)
+        {
+            walkBob.UpdateBob(isMoving);
         }
     }
 }
