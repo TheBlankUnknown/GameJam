@@ -18,7 +18,6 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         cam = Camera.main;
-
         if (cam == null)
             Debug.LogError("No camera found with tag MainCamera!");
     }
@@ -42,25 +41,39 @@ public class PlayerMovement : MonoBehaviour
     {
         if (rb == null || cam == null) return;
 
-        // Camera-relative movement
-        Vector3 forward = cam.transform.forward;
-        Vector3 right = cam.transform.right;
-        forward.y = 0f;
-        right.y = 0f;
-        forward.Normalize();
-        right.Normalize();
+        // ── Camera-relative movement ────────────────
+        // Get camera's forward and right, project onto XZ plane (y=0)
+        Vector3 camForward = cam.transform.forward;
+        Vector3 camRight   = cam.transform.right;
 
-        Vector3 moveDir = forward * moveInput.y + right * moveInput.x;
-        moveDir.Normalize();
+        camForward.y = 0f;
+        camRight.y   = 0f;
 
-        // Move player
-        rb.linearVelocity = moveDir * speed;
+        camForward.Normalize();
+        camRight.Normalize();
 
-        // Snap rotation: player always faces camera forward
-        Vector3 cameraForward = cam.transform.forward;
-        cameraForward.y = 0f;
-        cameraForward.Normalize();
+        // Now build move direction:
+        // moveInput.y → forward/back (W/S) along camera's look direction (now X-ish)
+        // moveInput.x → left/right (A/D) along camera's right (now Z-ish)
+        Vector3 moveDir = (camForward * moveInput.y) + (camRight * moveInput.x);
 
-        rb.rotation = Quaternion.LookRotation(cameraForward);
+        if (moveDir.sqrMagnitude > 0.001f)
+        {
+            moveDir.Normalize();
+            rb.linearVelocity = moveDir * speed;
+        }
+        else
+        {
+            // Optional: stop horizontal movement when no input (keeps gravity/falling clean)
+            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+        }
+
+        // ── Snap player to face camera's horizontal forward direction ──
+        // (player model usually faces +Z, but LookRotation will orient correctly)
+        Vector3 lookDirection = camForward; // already flattened & normalized
+        if (lookDirection.sqrMagnitude > 0.001f)
+        {
+            rb.rotation = Quaternion.LookRotation(lookDirection) * Quaternion.Euler(0, -90f, 0);
+        }
     }
 }
