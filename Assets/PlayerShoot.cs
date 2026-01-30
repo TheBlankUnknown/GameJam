@@ -8,9 +8,9 @@ public class PlayerShoot : MonoBehaviour
     public InputActionAsset inputActions;
     public float fireRate = 0.5f;
 
-    [Header("Raycast")]
-    [SerializeField] private float range = 100f;
-    [SerializeField] private LayerMask shootMask; // exclude BuyZone here
+    [Header("French Fry Cluster")]
+    public int fryCount = 5;
+    public float spreadAngle = 8f; // degrees
 
     private InputAction attackAction;
     private float nextFireTime;
@@ -25,25 +25,8 @@ public class PlayerShoot : MonoBehaviour
 
     private void OnEnable()
     {
-        if (inputActions == null)
-        {
-            Debug.LogError("InputActions asset not assigned!");
-            return;
-        }
-
         var map = inputActions.FindActionMap("Player");
-        if (map == null)
-        {
-            Debug.LogError("Player action map not found!");
-            return;
-        }
-
         attackAction = map.FindAction("Attack");
-        if (attackAction == null)
-        {
-            Debug.LogError("Attack action not found!");
-            return;
-        }
 
         attackAction.Enable();
         attackAction.performed += Shoot;
@@ -51,64 +34,68 @@ public class PlayerShoot : MonoBehaviour
 
     private void OnDisable()
     {
-        if (attackAction != null)
-        {
-            attackAction.performed -= Shoot;
-            attackAction.Disable();
-        }
+        attackAction.performed -= Shoot;
+        attackAction.Disable();
     }
 
     private void Shoot(InputAction.CallbackContext context)
     {
-        // 🚫 Block shooting when buy menu is open
-        if (BuyMenu.Instance != null && BuyMenu.Instance.IsOpen)
-            return;
-
-        if (Time.time < nextFireTime)
-            return;
+        if (BuyMenu.Instance != null && BuyMenu.Instance.IsOpen) return;
+        if (Time.time < nextFireTime) return;
 
         Rigidbody playerRb = GetComponent<Rigidbody>();
-        Vector3 playerVelocity = playerRb != null ? playerRb.linearVelocity : Vector3.zero;
+        Vector3 playerVelocity =
+            playerRb != null ? playerRb.linearVelocity : Vector3.zero;
 
-        // 🔥 ALWAYS raycast from camera center
-        Ray ray = new Ray(mainCamera.transform.position,
-                          mainCamera.transform.forward);
+        // Aim from screen center
+        Ray ray = mainCamera.ViewportPointToRay(
+            new Vector3(0.5f, 0.5f, 0f)
+        );
 
-        Vector3 aimPoint;
+        Vector3 targetPoint;
+        if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+            targetPoint = hit.point;
+        else
+            targetPoint = ray.origin + ray.direction * 100f;
 
-        // Ignore trigger colliders (buy zone fix)
-        if (Physics.Raycast(
-            ray,
-            out RaycastHit hit,
-            range,
-            shootMask,
-            QueryTriggerInteraction.Ignore
-        ))
+        Vector3 baseDirection =
+            (targetPoint - firePoint.position).normalized;
+
+        // 🔑 CLUSTER LOGIC
+        if (projectilePrefab.name.Contains("FrenchFry"))
         {
-            aimPoint = hit.point;
+            for (int i = 0; i < fryCount; i++)
+            {
+                float angleOffset =
+                    Random.Range(-spreadAngle, spreadAngle);
+
+                Quaternion spreadRot =
+                    Quaternion.AngleAxis(angleOffset, Vector3.up);
+
+                Vector3 spreadDir =
+                    spreadRot * baseDirection;
+
+                Projectile fry = Instantiate(
+                    projectilePrefab,
+                    firePoint.position,
+                    Quaternion.LookRotation(spreadDir)
+                );
+
+                fry.Launch(spreadDir, playerVelocity);
+            }
         }
         else
         {
-            aimPoint = ray.origin + ray.direction * range;
+            // Normal single shot
+            Projectile bullet = Instantiate(
+                projectilePrefab,
+                firePoint.position,
+                Quaternion.LookRotation(baseDirection)
+            );
+
+            bullet.Launch(baseDirection, playerVelocity);
         }
 
-        // 🔑 Direction is from firePoint → camera aim point
-        Vector3 shootDirection = (aimPoint - firePoint.position).normalized;
-
-        Projectile bullet = Instantiate(
-            projectilePrefab,
-            firePoint.position,
-            Quaternion.LookRotation(shootDirection)
-        );
-
-        bullet.Launch(shootDirection, playerVelocity);
-
         nextFireTime = Time.time + fireRate;
-
-        // Debug line to visualize aim
-        Debug.DrawRay(mainCamera.transform.position,
-                      mainCamera.transform.forward * range,
-                      Color.red,
-                      1f);
     }
 }
