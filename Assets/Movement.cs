@@ -33,6 +33,11 @@ public class PlayerMovement : MonoBehaviour
         lookInput = value.Get<Vector2>();
     }
 
+    public void ResetLookInput()
+    {
+        lookInput = Vector2.zero;
+    }
+
     private void FixedUpdate()
     {
         if (rb == null || cam == null) return;

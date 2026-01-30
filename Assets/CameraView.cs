@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ThirdPersonCamera : MonoBehaviour
 {
@@ -16,6 +17,9 @@ public class ThirdPersonCamera : MonoBehaviour
     private Vector3 currentRotation;
     private Vector3 rotationVelocity;
 
+    [HideInInspector]
+    public bool blockLookInput;
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -24,10 +28,13 @@ public class ThirdPersonCamera : MonoBehaviour
 
     void LateUpdate()
     {
-        if (target == null || player == null) return;
+        if (target == null || player == null)
+            return;
 
-        // Read input from PlayerMovement
-        Vector2 lookInput = player.lookInput;
+        // 🔑 BLOCK look input when UI just closed
+        Vector2 lookInput = (blockLookInput || EventSystem.current.IsPointerOverGameObject())
+            ? Vector2.zero
+            : player.lookInput;
 
         // Update rotation
         yaw += lookInput.x * mouseSensitivity;
@@ -35,7 +42,13 @@ public class ThirdPersonCamera : MonoBehaviour
         pitch = Mathf.Clamp(pitch, -35f, 60f);
 
         Vector3 targetRotation = new Vector3(pitch, yaw);
-        currentRotation = Vector3.SmoothDamp(currentRotation, targetRotation, ref rotationVelocity, rotationSmoothTime);
+        currentRotation = Vector3.SmoothDamp(
+            currentRotation,
+            targetRotation,
+            ref rotationVelocity,
+            rotationSmoothTime
+        );
+
         transform.eulerAngles = currentRotation;
 
         // Follow the player
