@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45eb08d8d67fc4bbb94f5e38cf9536b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  speed: 3
+  speed: 7
   maxHealth: 50
   damage: 10
   player: {fileID: 76131048766694079, guid: 345ce7b4a67983249af02dcff7c6c5d2, type: 3}
