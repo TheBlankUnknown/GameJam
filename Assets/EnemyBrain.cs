@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Enemy : MonoBehaviour
 {
@@ -13,16 +14,18 @@ public class Enemy : MonoBehaviour
     public Transform player;
 
     [Header("Damage Settings")]
-    public float attackRange = 1.5f; // distance to deal damage
+    public float attackRange = 1.5f;
     public float attackCooldown = 1f;
 
     private float lastAttackTime;
+
+    // Track bullets that already damaged this enemy
+    private HashSet<Projectile> bulletsThatHitMe = new HashSet<Projectile>();
 
     private void Start()
     {
         currentHealth = maxHealth;
 
-        // Auto-find the player if not assigned
         if (player == null && GameObject.FindWithTag("Player") != null)
         {
             player = GameObject.FindWithTag("Player").transform;
@@ -39,12 +42,11 @@ public class Enemy : MonoBehaviour
 
     private void FollowPlayer()
     {
-        // Move towards the player
         Vector3 direction = (player.position - transform.position).normalized;
-        direction.y = 0f; // keep on the same height
+        direction.y = 0f;
+
         transform.position += direction * speed * Time.deltaTime;
 
-        // Optional: face the player
         if (direction != Vector3.zero)
         {
             transform.rotation = Quaternion.LookRotation(direction);
@@ -58,7 +60,6 @@ public class Enemy : MonoBehaviour
         float distance = Vector3.Distance(transform.position, player.position);
         if (distance <= attackRange)
         {
-            // Deal damage
             PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
@@ -69,9 +70,12 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    // Called by the bullet
     public void TakeDamage(int amount)
     {
         currentHealth -= amount;
+        Debug.Log($"{name} took {amount} damage. HP: {currentHealth}");
+
         if (currentHealth <= 0)
         {
             Die();
@@ -80,6 +84,7 @@ public class Enemy : MonoBehaviour
 
     private void Die()
     {
-        Destroy(gameObject); // simple death
+        Debug.Log($"{name} died!");
+        Destroy(gameObject);
     }
 }
