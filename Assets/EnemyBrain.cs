@@ -22,6 +22,11 @@ public class Enemy : MonoBehaviour
     // Track bullets that already damaged this enemy
     private HashSet<Projectile> bulletsThatHitMe = new HashSet<Projectile>();
 
+    // Money reward
+    public int moneyReward = 50;
+
+    public PlayerUI playerUI;
+
     private void Start()
     {
         currentHealth = maxHealth;
@@ -29,6 +34,17 @@ public class Enemy : MonoBehaviour
         if (player == null && GameObject.FindWithTag("Player") != null)
         {
             player = GameObject.FindWithTag("Player").transform;
+        }
+
+        // Get the PlayerUI from the player
+        if (player != null)
+        {
+            playerUI = player.GetComponent<PlayerUI>();
+            if (playerUI == null)
+            {
+                // Try searching in children in case UI is elsewhere
+                playerUI = player.GetComponentInChildren<PlayerUI>();
+            }
         }
     }
 
@@ -85,6 +101,13 @@ public class Enemy : MonoBehaviour
     private void Die()
     {
         Debug.Log($"{name} died!");
+
+        // Give money to player
+        if (playerUI != null)
+        {
+            playerUI.AddMoney(moneyReward);
+        }
+
         Destroy(gameObject);
     }
 }

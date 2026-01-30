@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
+    public PlayerUI playerUI;
+
     [Header("Health")]
     public int maxHealth = 100;
     private int currentHealth;
@@ -19,9 +21,11 @@ public class PlayerHealth : MonoBehaviour
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        Debug.Log("Player Health: " + currentHealth);
-
-        if (currentHealth <= 0)
+        if (currentHealth < 0) currentHealth = 0;
+        
+        playerUI?.SetHP(currentHealth);
+        
+        if (currentHealth == 0)
         {
             Die();
         }
@@ -45,7 +49,7 @@ public class PlayerHealth : MonoBehaviour
     {
         currentHealth += amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        Debug.Log("Player Healed: " + currentHealth);
+        playerUI?.SetHP(currentHealth);
     }
 
     /// <summary>
