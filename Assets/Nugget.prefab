@@ -63,7 +63,7 @@ Transform:
   m_GameObject: {fileID: 3639930509681172266}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.033826414, z: -0, w: 0.9994278}
-  m_LocalPosition: {x: 0.818, y: 1.694, z: 0.237}
+  m_LocalPosition: {x: -1.47, y: 1.694, z: -5.76}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -116,7 +116,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &4861607592816271264
 MonoBehaviour:
@@ -174,7 +174,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShoot
   firePoint: {fileID: 22760347244651174}
-  projectilePrefab: {fileID: 6778172479590176984, guid: eecda5dcfcdf0b44093f1fa18369a9b1, type: 3}
+  projectilePrefab: {fileID: 5575900455874416318, guid: c0e601b9c0bbd4eae826c5ccaacb02e3, type: 3}
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   fireRate: 0.5
   range: 100
@@ -237,9 +237,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1488b2298632413fb28644240d50024, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  speed: 6
+  speed: 8
   lookInput: {x: 0, y: 0}
-  walkBob: {fileID: 0}
+  walkBob: {fileID: 7800630102489489123}
 --- !u!1 &7434521217051093063
 GameObject:
   m_ObjectHideFlags: 0
@@ -249,6 +249,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6711596515155707890}
+  - component: {fileID: 7800630102489489123}
   m_Layer: 0
   m_Name: RootModel
   m_TagString: Untagged
@@ -273,6 +274,22 @@ Transform:
   - {fileID: 22760347244651174}
   m_Father: {fileID: 3256373464950934300}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7800630102489489123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7434521217051093063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aa1920fc4b0e46069671781e6f0d33c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SimpleWalkBob
+  stepSpeed: 8
+  verticalBobAmount: 0.8
+  stepTiltAngle: 15
+  tiltSmooth: 8
 --- !u!1 &9027649531759737255
 GameObject:
   m_ObjectHideFlags: 0
