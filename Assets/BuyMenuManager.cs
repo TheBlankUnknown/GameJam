@@ -5,7 +5,7 @@ public class BuyMenu : MonoBehaviour
 {
     public static BuyMenu Instance;
     public GameObject buyMenuUI;
-
+    public bool IsOpen { get; private set; }
     private DefaultInputActions inputActions;
 
     void Awake()
@@ -25,10 +25,10 @@ public class BuyMenu : MonoBehaviour
 
     public void OpenMenu()
     {
+        IsOpen = true;
+
         buyMenuUI.SetActive(true);
         Time.timeScale = 0f;
-
-        inputActions.Player.Disable(); // stop movement/shooting
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -36,10 +36,10 @@ public class BuyMenu : MonoBehaviour
 
     public void CloseMenu()
     {
+        IsOpen = false;
+
         buyMenuUI.SetActive(false);
         Time.timeScale = 1f;
-
-        inputActions.Player.Enable();
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;

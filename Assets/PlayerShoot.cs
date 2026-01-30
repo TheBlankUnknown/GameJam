@@ -8,6 +8,10 @@ public class PlayerShoot : MonoBehaviour
     public InputActionAsset inputActions;
     public float fireRate = 0.5f;
 
+    [Header("Raycast")]
+    [SerializeField] private float range = 100f;
+    [SerializeField] private LayerMask shootMask; // exclude BuyZone here
+
     private InputAction attackAction;
     private float nextFireTime;
     private Camera mainCamera;
@@ -56,31 +60,55 @@ public class PlayerShoot : MonoBehaviour
 
     private void Shoot(InputAction.CallbackContext context)
     {
-        if (Time.time < nextFireTime) return;
+        // 🚫 Block shooting when buy menu is open
+        if (BuyMenu.Instance != null && BuyMenu.Instance.IsOpen)
+            return;
+
+        if (Time.time < nextFireTime)
+            return;
 
         Rigidbody playerRb = GetComponent<Rigidbody>();
         Vector3 playerVelocity = playerRb != null ? playerRb.linearVelocity : Vector3.zero;
 
-        // Calculate direction from camera to screen center
-        Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-        Vector3 targetPoint;
+        // 🔥 ALWAYS raycast from camera center
+        Ray ray = new Ray(mainCamera.transform.position,
+                          mainCamera.transform.forward);
 
-        // Raycast to see if we hit something
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+        Vector3 aimPoint;
+
+        // Ignore trigger colliders (buy zone fix)
+        if (Physics.Raycast(
+            ray,
+            out RaycastHit hit,
+            range,
+            shootMask,
+            QueryTriggerInteraction.Ignore
+        ))
         {
-            targetPoint = hit.point;
+            aimPoint = hit.point;
         }
         else
         {
-            targetPoint = ray.origin + ray.direction * 100f; // far away if nothing hit
+            aimPoint = ray.origin + ray.direction * range;
         }
 
-        Vector3 shootDirection = (targetPoint - firePoint.position).normalized;
+        // 🔑 Direction is from firePoint → camera aim point
+        Vector3 shootDirection = (aimPoint - firePoint.position).normalized;
 
-        Projectile bullet = Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(shootDirection));
+        Projectile bullet = Instantiate(
+            projectilePrefab,
+            firePoint.position,
+            Quaternion.LookRotation(shootDirection)
+        );
+
         bullet.Launch(shootDirection, playerVelocity);
 
         nextFireTime = Time.time + fireRate;
-        Debug.Log("Bullet shot towards screen center");
+
+        // Debug line to visualize aim
+        Debug.DrawRay(mainCamera.transform.position,
+                      mainCamera.transform.forward * range,
+                      Color.red,
+                      1f);
     }
 }
