@@ -22,6 +22,8 @@ public class PlayerShoot : MonoBehaviour
     [Header("Default Ammo")]
     public Projectile defaultProjectile; // slot 1 default
 
+    private bool biggerBullets = false;
+
     private InputAction attackAction;
     private readonly List<InputAction> selectActions = new();
 
@@ -124,6 +126,10 @@ public class PlayerShoot : MonoBehaviour
         if (Time.time < nextFireTime) return;
         if (ammoSlots.Count == 0) return;
 
+        float scaleModifier = 1f;
+        // Determine scale modifier
+        if (biggerBullets) scaleModifier = 2f;
+
         Projectile projectilePrefab = ammoSlots[currentSlotIndex];
 
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -158,6 +164,9 @@ public class PlayerShoot : MonoBehaviour
                     Quaternion.LookRotation(spreadDir)
                 );
 
+                // ✅ APPLY SCALE HERE
+                fry.transform.localScale *= scaleModifier;
+
                 fry.Launch(spreadDir, playerVelocity);
             }
         }
@@ -169,11 +178,15 @@ public class PlayerShoot : MonoBehaviour
                 Quaternion.LookRotation(baseDirection)
             );
 
+            // ✅ APPLY SCALE HERE
+            bullet.transform.localScale *= scaleModifier;
+
             bullet.Launch(baseDirection, playerVelocity);
         }
 
         nextFireTime = Time.time + fireRate;
     }
+
     /// <summary>Returns the index of a projectile in the ammo slots, or -1 if not found</summary>
     public int GetAmmoSlotIndex(Projectile projectile)
     {
@@ -186,6 +199,11 @@ public class PlayerShoot : MonoBehaviour
         if (slotIndex < 0 || slotIndex >= ammoSlots.Count) return;
         currentSlotIndex = slotIndex;
         UpdateUI();
+    }
+
+    public void SetBiggerBullets(bool flag)
+    {
+        biggerBullets = flag;
     }
 
 }
