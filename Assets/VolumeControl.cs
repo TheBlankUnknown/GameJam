@@ -61,6 +61,10 @@ public class AudioManager : MonoBehaviour
         {
             sfxSourcet.PlayOneShot(sfxClips[clipIndex], sfxSlider.value * 5);
         }
+        else if (clipIndex == 2)
+        {
+            sfxSourcet.PlayOneShot(sfxClips[clipIndex], sfxSlider.value * 5);
+        }
         else
         {
             sfxSourcet.PlayOneShot(sfxClips[clipIndex], sfxSlider.value);
