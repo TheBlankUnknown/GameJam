@@ -10,8 +10,7 @@ public class Enemy : MonoBehaviour
 
     private int currentHealth;
 
-    [Header("Target")]
-    public Transform player;
+    private Transform player;
 
     [Header("Damage Settings")]
     public float attackRange = 1.5f;
@@ -22,14 +21,17 @@ public class Enemy : MonoBehaviour
     // Track bullets that already damaged this enemy
     private HashSet<Projectile> bulletsThatHitMe = new HashSet<Projectile>();
 
+    // Money reward
+    public int moneyReward = 50;
+
+    public PlayerUI playerUI;
+
     private void Start()
     {
         currentHealth = maxHealth;
 
-        if (player == null && GameObject.FindWithTag("Player") != null)
-        {
-            player = GameObject.FindWithTag("Player").transform;
-        }
+        player = GameObject.FindWithTag("Player").transform;
+        
     }
 
     private void Update()
@@ -85,6 +87,15 @@ public class Enemy : MonoBehaviour
     private void Die()
     {
         Debug.Log($"{name} died!");
+
+        // Give money to player
+        if (playerUI != null)
+        {
+            Debug.Log($"Gave Money!");
+                    
+            playerUI.AddMoney(moneyReward);
+        }
+
         Destroy(gameObject);
     }
 }
