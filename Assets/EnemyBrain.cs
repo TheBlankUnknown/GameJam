@@ -12,6 +12,8 @@ public class Enemy : MonoBehaviour
 
     private Transform player;
 
+    private PowerUpDrop powerUpDrop;
+
     [Header("Damage Settings")]
     public float attackRange = 1.5f;
     public float attackCooldown = 1f;
@@ -35,6 +37,9 @@ public class Enemy : MonoBehaviour
         player = GameObject.FindWithTag("Player").transform;
         playerUI = FindObjectOfType<PlayerUI>();
         audioManager = FindObjectOfType<AudioManager>();
+
+        // ✅ Initialize PowerUpDrop
+        powerUpDrop = GetComponent<PowerUpDrop>();
     }
 
     private void Update()
@@ -84,6 +89,10 @@ public class Enemy : MonoBehaviour
         if (currentHealth <= 0)
         {
             audioManager.PlaySFX(5);
+            // ✅ Try drop powerup before dying
+            if (powerUpDrop != null)
+                powerUpDrop.TryDrop();
+
             Die();
         }
         else
@@ -92,7 +101,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void Die()
+    public void Die()
     {
         Debug.Log($"{name} died!");
 

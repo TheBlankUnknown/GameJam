@@ -103,6 +103,7 @@ GameObject:
   - component: {fileID: 3461243975169819569}
   - component: {fileID: 6004696605344767979}
   - component: {fileID: 1429058758062007220}
+  - component: {fileID: -6601428230669870335}
   m_Layer: 0
   m_Name: BrownChicken
   m_TagString: Untagged
@@ -209,3 +210,22 @@ MonoBehaviour:
   hopDuration: 0.2
   minWait: 1
   maxWait: 3
+--- !u!114 &-6601428230669870335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8004978759483013503}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52f7ccce89c824d83ba1c753522be777, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PowerUpDrop
+  dropChance: 0.1
+  biggerBulletsPrefab: {fileID: 8474046916563392966, guid: 5762a955d307f43c68d95d11f1499fbf, type: 3}
+  speedPrefab: {fileID: 993382687530845079, guid: bc398d7c5a0eb43f8a428c53d3f8fae8, type: 3}
+  nukePrefab: {fileID: 6076091772380523423, guid: dfd4f4f2c4b2541ec8cf6a5ee6c52684, type: 3}
+  biggerBulletsWeight: 50
+  speedWeight: 40
+  nukeWeight: 10

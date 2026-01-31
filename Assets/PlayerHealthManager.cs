@@ -47,8 +47,8 @@ public class PlayerHealth : MonoBehaviour
     {
         Debug.Log("Player Died!");
         // Disable player input or play death animation
-        // Example: disable the game object
-        gameObject.SetActive(false);
+        playerUI.DeathScreen();
+        Destroy(gameObject);
     }
 
     /// <summary>
