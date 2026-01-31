@@ -10,8 +10,7 @@ public class Enemy : MonoBehaviour
 
     private int currentHealth;
 
-    [Header("Target")]
-    public Transform player;
+    private Transform player;
 
     [Header("Damage Settings")]
     public float attackRange = 1.5f;
@@ -31,21 +30,8 @@ public class Enemy : MonoBehaviour
     {
         currentHealth = maxHealth;
 
-        if (player == null && GameObject.FindWithTag("Player") != null)
-        {
-            player = GameObject.FindWithTag("Player").transform;
-        }
-
-        // Get the PlayerUI from the player
-        if (player != null)
-        {
-            playerUI = player.GetComponent<PlayerUI>();
-            if (playerUI == null)
-            {
-                // Try searching in children in case UI is elsewhere
-                playerUI = player.GetComponentInChildren<PlayerUI>();
-            }
-        }
+        player = GameObject.FindWithTag("Player").transform;
+        
     }
 
     private void Update()
@@ -105,6 +91,8 @@ public class Enemy : MonoBehaviour
         // Give money to player
         if (playerUI != null)
         {
+            Debug.Log($"Gave Money!");
+                    
             playerUI.AddMoney(moneyReward);
         }
 

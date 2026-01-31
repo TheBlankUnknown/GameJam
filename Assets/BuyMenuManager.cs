@@ -1,56 +1,52 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro; // If using TextMeshPro
 
 public class BuyMenu : MonoBehaviour
 {
     public static BuyMenu Instance;
-
-    [Header("UI")]
     public GameObject buyMenuUI;
-
-    [Header("Input")]
-    public InputActionAsset inputActions; // assign your Input System asset here
-
-    [Header("References")]
-    public PlayerMovement player; // assign your player script here
-
     public bool IsOpen { get; private set; }
 
-    private InputAction buyAction;
+    [Header("Player UI")]
+    public GameObject playerUIRoot;          // The main player UI root
+    public TMP_Text buyMenuMoneyText;        // Text element inside Buy Menu to show money
 
-    private void Awake()
+    private DefaultInputActions inputActions;
+
+    void Awake()
     {
         if (Instance == null)
             Instance = this;
         else
             Destroy(gameObject);
+
+        inputActions = new DefaultInputActions();
     }
 
-    private void Start()
+    void Start()
     {
         buyMenuUI.SetActive(false);
-
-        // Setup Buy action from your InputActions asset
-        if (inputActions != null)
-        {
-            var map = inputActions.FindActionMap("Player");
-            if (map != null)
-            {
-                buyAction = map.FindAction("Buy");
-                if (buyAction != null)
-                    buyAction.performed += ctx => ToggleMenu();
-                buyAction?.Enable();
-            }
-        }
     }
 
     public void OpenMenu()
     {
         IsOpen = true;
-
         buyMenuUI.SetActive(true);
-        Time.timeScale = 0f;
 
+        // Hide main UI
+        if (playerUIRoot != null)
+            playerUIRoot.SetActive(false);
+
+        // Copy the current money from main UI
+        if (buyMenuMoneyText != null && playerUIRoot != null)
+        {
+            TMP_Text mainMoneyText = playerUIRoot.GetComponentInChildren<TMP_Text>();
+            if (mainMoneyText != null)
+                buyMenuMoneyText.text = mainMoneyText.text;
+        }
+
+        Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
@@ -58,22 +54,13 @@ public class BuyMenu : MonoBehaviour
     public void CloseMenu()
     {
         IsOpen = false;
-
         buyMenuUI.SetActive(false);
+
+        // Show main UI
+        if (playerUIRoot != null)
+            playerUIRoot.SetActive(true);
+
         Time.timeScale = 1f;
-
-        // Reset player look input immediately to prevent camera snapping
-        if (player != null)
-            player.ResetLookInput();
-
-        // Optional: still block camera input briefly
-        ThirdPersonCamera cam = FindObjectOfType<ThirdPersonCamera>();
-        if (cam != null)
-        {
-            cam.blockLookInput = true;
-            cam.blockLookInput = false; // we reset immediately since mouse delta is already cleared
-        }
-
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
