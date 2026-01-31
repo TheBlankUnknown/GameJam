@@ -17,6 +17,12 @@ public class PlayerUI : MonoBehaviour
     [Header("Money UI")]
     public TMP_Text moneyText;
 
+    [Header("Damage Effect")]
+    public Image damageOverlay;
+    public float flashSpeed = 5f;   // How fast it fades
+    public float flashAlpha = 0.5f; // Max alpha when damaged
+    private bool isDamaged = false;
+
     private int money = 0;
     private int currentHP;
 
@@ -27,11 +33,33 @@ public class PlayerUI : MonoBehaviour
         UpdateMoneyUI();
     }
 
+    void Update()
+    {
+        if (damageOverlay == null) return;
+
+        if (isDamaged)
+        {
+            // Set overlay to red with alpha
+            damageOverlay.color = new Color(1f, 0f, 0f, flashAlpha);
+            isDamaged = false; // reset, will fade automatically
+        }
+        else
+        {
+            // Fade back to transparent
+            damageOverlay.color = Color.Lerp(damageOverlay.color, Color.clear, flashSpeed * Time.deltaTime);
+        }
+    }
+
     // ── HP ─────────────────────────────
     public void SetHP(int hp)
     {
         currentHP = Mathf.Clamp(hp, 0, maxHP);
         UpdateHPBar();
+    }
+
+    public void FlashDamage()
+    {
+        isDamaged = true;
     }
 
     private void UpdateHPBar()
