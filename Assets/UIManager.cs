@@ -23,6 +23,10 @@ public class PlayerUI : MonoBehaviour
     public float flashAlpha = 0.5f; // Max alpha when damaged
     private bool isDamaged = false;
 
+    [Header("Death Screen")]
+    public GameObject DeathScreenText;
+    private bool isDead = false;
+
     private int money = 0;
     private int currentHP;
 
@@ -36,6 +40,7 @@ public class PlayerUI : MonoBehaviour
     void Update()
     {
         if (damageOverlay == null) return;
+        if (isDead) return;
 
         if (isDamaged)
         {
@@ -60,6 +65,13 @@ public class PlayerUI : MonoBehaviour
     public void FlashDamage()
     {
         isDamaged = true;
+    }
+
+    public void DeathScreen()
+    {
+        isDead = true;
+        damageOverlay.color = new Color(1f, 0f, 0f, flashAlpha);
+        DeathScreenText.SetActive(true);
     }
 
     private void UpdateHPBar()
