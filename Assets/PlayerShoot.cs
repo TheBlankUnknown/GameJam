@@ -129,6 +129,7 @@ public class PlayerShoot : MonoBehaviour
         if (BuyMenu.Instance != null && BuyMenu.Instance.IsOpen) return;
         if (Time.time < nextFireTime) return;
         if (ammoSlots.Count == 0) return;
+        if (Time.timeScale == 0) return;
 
         float scaleModifier = 1f;
         // Determine scale modifier

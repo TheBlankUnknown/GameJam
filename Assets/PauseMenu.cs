@@ -36,6 +36,7 @@ public class PauseMenu : MonoBehaviour
     void TogglePause()
     {
         if (isPaused) Resume();
+        else if (!isPaused && Time.timeScale == 0) return;
         else Pause();
     }
 
