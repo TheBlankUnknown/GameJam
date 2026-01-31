@@ -11,6 +11,16 @@ public class AudioManager : MonoBehaviour
     public Slider musicSlider;
     public Slider sfxSlider;
 
+    [Header("SFX Clips")]
+    public AudioClip[] sfxClips; // Assign your sounds here
+    public AudioSource sfxSourcet; // We'll play sounds through this
+
+    private void Awake()
+    {
+        // Assign the first AudioSource from sfxSources or create one
+        if (sfxSources.Length > 0)
+            sfxSourcet = sfxSources[0];
+    }
     private void Start()
     {
         // Load saved volumes
@@ -39,5 +49,22 @@ public class AudioManager : MonoBehaviour
             sfx.volume = value; // Set all SFX sources
         }
         PlayerPrefs.SetFloat("SFXVolume", value);
+    }
+    public void PlaySFX(int clipIndex)
+    {
+        if (clipIndex < 0 || clipIndex >= sfxClips.Length) return;
+        if(clipIndex == 4)
+        {
+            sfxSourcet.PlayOneShot(sfxClips[clipIndex], sfxSlider.value*10);
+        }
+        else if (clipIndex == 5)
+        {
+            sfxSourcet.PlayOneShot(sfxClips[clipIndex], sfxSlider.value * 5);
+        }
+        else
+        {
+            sfxSourcet.PlayOneShot(sfxClips[clipIndex], sfxSlider.value);
+        }
+        
     }
 }

@@ -7,6 +7,9 @@ public class PlayerHealth : MonoBehaviour
     [Header("Health")]
     public int maxHealth = 100;
     private int currentHealth;
+
+    public AudioManager audioManager;
+    
     private void Awake()
     {
         currentHealth = maxHealth;
@@ -28,7 +31,12 @@ public class PlayerHealth : MonoBehaviour
         
         if (currentHealth == 0)
         {
+            audioManager.PlaySFX(1);
             Die();
+        }
+        else
+        {
+            audioManager.PlaySFX(2);
         }
     }
 

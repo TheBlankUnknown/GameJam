@@ -171,6 +171,7 @@ MonoBehaviour:
   attackRange: 1.5
   attackCooldown: 1
   moneyReward: 50
+  audioManager: {fileID: 0}
 --- !u!65 &6004696605344767979
 BoxCollider:
   m_ObjectHideFlags: 0

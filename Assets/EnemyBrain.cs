@@ -26,12 +26,15 @@ public class Enemy : MonoBehaviour
 
     private PlayerUI playerUI;
 
+    public AudioManager audioManager;
+
     private void Start()
     {
         currentHealth = maxHealth;
 
         player = GameObject.FindWithTag("Player").transform;
         playerUI = FindObjectOfType<PlayerUI>();
+        audioManager = FindObjectOfType<AudioManager>();
     }
 
     private void Update()
@@ -80,7 +83,12 @@ public class Enemy : MonoBehaviour
 
         if (currentHealth <= 0)
         {
+            audioManager.PlaySFX(5);
             Die();
+        }
+        else
+        {
+            audioManager.PlaySFX(3);
         }
     }
 

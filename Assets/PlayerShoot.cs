@@ -33,6 +33,10 @@ public class PlayerShoot : MonoBehaviour
     private int currentSlotIndex = 0;
     private const int maxSlots = 5;
 
+    //audio for shoot sound
+    public AudioManager audioManager;
+
+
     private void Awake()
     {
         mainCamera = Camera.main;
@@ -171,7 +175,7 @@ public class PlayerShoot : MonoBehaviour
 
             bullet.Launch(baseDirection, playerVelocity);
         }
-
+        audioManager.PlaySFX(4);
         nextFireTime = Time.time + fireRate;
     }
     /// <summary>Returns the index of a projectile in the ammo slots, or -1 if not found</summary>

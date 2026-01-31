@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,6 +7,18 @@ public class PauseMenu : MonoBehaviour
     public GameObject pauseUI; // Drag PausePanel here
     private bool isPaused;
     private InputAction pauseAction;
+    public TMP_InputField sensitivityInput;
+    public ThirdPersonCamera mouseLook;
+
+    private void Start()
+    {
+        float savedSens = PlayerPrefs.GetFloat("Sensitivity", 1f);
+
+        sensitivityInput.text = savedSens.ToString("0.##");
+        mouseLook.mouseSensitivity = savedSens;
+
+        sensitivityInput.onEndEdit.AddListener(SetSensitivity);
+    }
 
     void Awake()
     {
@@ -44,5 +57,22 @@ public class PauseMenu : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+    public void SetSensitivity(string value)
+    {
+        if (float.TryParse(value, out float sens))
+        {
+            sens = Mathf.Clamp(sens, 0.1f, 10f);
+            Debug.Log(sens);
+            mouseLook.mouseSensitivity = sens;
+            PlayerPrefs.SetFloat("Sensitivity", sens);
+
+            sensitivityInput.text = sens.ToString("0.##");
+        }
+        else
+        {
+            // reset if invalid input
+            sensitivityInput.text = mouseLook.mouseSensitivity.ToString("0.##");
+        }
     }
 }

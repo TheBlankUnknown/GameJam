@@ -26,6 +26,8 @@ public class BuyMenu : MonoBehaviour
 
     private DefaultInputActions inputActions;
 
+    public AudioManager audioManager;
+
     void Awake()
     {
         if (Instance == null)
@@ -106,6 +108,7 @@ public class BuyMenu : MonoBehaviour
         // Unlock French Fry purchase
         if (frenchFriesButton != null)
             frenchFriesButton.SetActive(true);
+        audioManager.PlaySFX(0);
     }
 
     public void BuyFrenchFry()
@@ -121,6 +124,7 @@ public class BuyMenu : MonoBehaviour
         // Immediately select it
         int slot = playerShoot.GetAmmoSlotIndex(frenchFryProjectile);
         playerShoot.SelectAmmo(slot);
+        audioManager.PlaySFX(0);
     }
 
 }

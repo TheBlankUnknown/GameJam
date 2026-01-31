@@ -54,6 +54,7 @@ MonoBehaviour:
   attackRange: 1.5
   attackCooldown: 1
   moneyReward: 50
+  audioManager: {fileID: 0}
 --- !u!54 &6102479442544655509
 Rigidbody:
   m_ObjectHideFlags: 0
