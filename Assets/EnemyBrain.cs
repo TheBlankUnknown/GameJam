@@ -12,6 +12,8 @@ public class Enemy : MonoBehaviour
 
     private Transform player;
 
+    private PowerUpDrop powerUpDrop;
+
     [Header("Damage Settings")]
     public float attackRange = 1.5f;
     public float attackCooldown = 1f;
@@ -32,6 +34,9 @@ public class Enemy : MonoBehaviour
 
         player = GameObject.FindWithTag("Player").transform;
         playerUI = FindObjectOfType<PlayerUI>();
+
+        // ✅ Initialize PowerUpDrop
+        powerUpDrop = GetComponent<PowerUpDrop>();
     }
 
     private void Update()
@@ -80,11 +85,15 @@ public class Enemy : MonoBehaviour
 
         if (currentHealth <= 0)
         {
+            // ✅ Try drop powerup before dying
+            if (powerUpDrop != null)
+                powerUpDrop.TryDrop();
+
             Die();
         }
     }
 
-    private void Die()
+    public void Die()
     {
         Debug.Log($"{name} died!");
 
