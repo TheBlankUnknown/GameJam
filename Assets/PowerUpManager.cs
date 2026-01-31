@@ -17,6 +17,9 @@ public class PowerUpManager : MonoBehaviour
     private Coroutine biggerBulletsRoutine;
     private Coroutine speedRoutine;
 
+    public AudioManager audioManager;
+
+
     private void Awake()
     {
         if (Instance == null)
@@ -34,6 +37,7 @@ public class PowerUpManager : MonoBehaviour
 
     private void ActivateBiggerBullets()
     {
+        audioManager.PlaySFX(11);
         if (biggerBulletsRoutine != null)
             StopCoroutine(biggerBulletsRoutine);
 
@@ -50,6 +54,7 @@ public class PowerUpManager : MonoBehaviour
 
     private void ActivateSpeed()
     {
+        audioManager.PlaySFX(10);
         if (speedRoutine != null)
             StopCoroutine(speedRoutine);
 
@@ -69,6 +74,7 @@ public class PowerUpManager : MonoBehaviour
 
     private void ActivateNuke()
     {
+        audioManager.PlaySFX(9);
         Enemy[] enemies = FindObjectsOfType<Enemy>();
         foreach (Enemy enemy in enemies)
             enemy.Die();
