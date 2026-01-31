@@ -36,6 +36,12 @@ public class AudioManager : MonoBehaviour
         sfxSlider.onValueChanged.AddListener(SetSFXVolume);
     }
 
+    public float GetMusicVolume()
+    {
+       return musicSource.volume; // Slider is 0-1
+       
+    }
+
     public void SetMusicVolume(float value)
     {
         musicSource.volume = value; // Slider is 0-1
