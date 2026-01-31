@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // Required if you use TextMeshPro
+using TMPro;
 
 public class PlayerUI : MonoBehaviour
 {
@@ -9,29 +9,57 @@ public class PlayerUI : MonoBehaviour
     public int maxHP = 100;
 
     [Header("Ammo Icon")]
-    public Image ammoIcon;          // UI Image to show current ammo
-    public Sprite PotatoSprite;     // Sprite for normal projectile
-    public Sprite frenchFrySprite;  // Sprite for FrenchFry
-    public Sprite HotPotatoSprite;  // Sprite for third ammo type
+    public Image ammoIcon;
+    public Sprite PotatoSprite;
+    public Sprite frenchFrySprite;
+    public Sprite HotPotatoSprite;
 
     [Header("Money UI")]
-    public TMP_Text moneyText;      // Text to display money (use Text if not TMP)
-    private int money = 0;
+    public TMP_Text moneyText;
 
+    [Header("Damage Effect")]
+    public Image damageOverlay;
+    public float flashSpeed = 5f;   // How fast it fades
+    public float flashAlpha = 0.5f; // Max alpha when damaged
+    private bool isDamaged = false;
+
+    private int money = 0;
     private int currentHP;
 
     void Start()
     {
         currentHP = maxHP;
         UpdateHPBar();
-        UpdateMoneyUI(); // Initialize money display
+        UpdateMoneyUI();
     }
 
-    // --- HP Functions ---
+    void Update()
+    {
+        if (damageOverlay == null) return;
+
+        if (isDamaged)
+        {
+            // Set overlay to red with alpha
+            damageOverlay.color = new Color(1f, 0f, 0f, flashAlpha);
+            isDamaged = false; // reset, will fade automatically
+        }
+        else
+        {
+            // Fade back to transparent
+            damageOverlay.color = Color.Lerp(damageOverlay.color, Color.clear, flashSpeed * Time.deltaTime);
+        }
+    }
+
+    // ── HP ─────────────────────────────
     public void SetHP(int hp)
     {
         currentHP = Mathf.Clamp(hp, 0, maxHP);
         UpdateHPBar();
+    }
+
+    public void FlashDamage()
+    {
+        isDamaged = true;
     }
 
     private void UpdateHPBar()
@@ -40,7 +68,7 @@ public class PlayerUI : MonoBehaviour
             hpBar.value = currentHP;
     }
 
-    // --- Ammo Functions ---
+    // ── Ammo ───────────────────────────
     public void SetAmmoType(string ammoName)
     {
         if (ammoIcon == null) return;
@@ -57,12 +85,12 @@ public class PlayerUI : MonoBehaviour
                 ammoIcon.sprite = HotPotatoSprite;
                 break;
             default:
-                ammoIcon.sprite = PotatoSprite; // fallback
+                ammoIcon.sprite = PotatoSprite;
                 break;
         }
     }
 
-    // --- Money Functions ---
+    // ── Money ──────────────────────────
     public void AddMoney(int amount)
     {
         money += amount;
@@ -75,9 +103,19 @@ public class PlayerUI : MonoBehaviour
         UpdateMoneyUI();
     }
 
+    public int GetMoney()
+    {
+        return money;
+    }
+
+    public string GetMoneyText()
+    {
+        return $"$ {money}";
+    }
+
     private void UpdateMoneyUI()
     {
         if (moneyText != null)
-            moneyText.text = $"$ {money}";
+            moneyText.text = GetMoneyText();
     }
 }

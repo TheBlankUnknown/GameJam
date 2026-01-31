@@ -44,6 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8d0d10026b7d467a8e3bbe92199d5da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuyMenu
-  buyMenuUI: {fileID: 0}
+  buyMenuUI: {fileID: 2368581767109560000, guid: 08e28d267f10c49a7a96b9435c66c90d, type: 3}
   playerUIRoot: {fileID: 0}
   buyMenuMoneyText: {fileID: 0}
