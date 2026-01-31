@@ -24,14 +24,14 @@ public class Enemy : MonoBehaviour
     // Money reward
     public int moneyReward = 50;
 
-    public PlayerUI playerUI;
+    private PlayerUI playerUI;
 
     private void Start()
     {
         currentHealth = maxHealth;
 
         player = GameObject.FindWithTag("Player").transform;
-        
+        playerUI = FindObjectOfType<PlayerUI>();
     }
 
     private void Update()
