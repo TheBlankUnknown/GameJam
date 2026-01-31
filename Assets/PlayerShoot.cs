@@ -7,10 +7,13 @@ public class PlayerShoot : MonoBehaviour
     [Header("References")]
     public Transform firePoint;
     public InputActionAsset inputActions;
-    public PlayerUI playerUI; // optional: update ammo icon
+    public PlayerUI playerUI; // updates ammo icon
 
     [Header("Shooting")]
     public float fireRate = 0.5f;
+
+    [Header("Raycast Settings")]
+    public LayerMask shootIgnoreLayer; // assign BuyZone layer in inspector
 
     [Header("French Fry Cluster")]
     public int fryCount = 5;
@@ -20,11 +23,13 @@ public class PlayerShoot : MonoBehaviour
     public Projectile defaultProjectile; // slot 1 default
 
     private InputAction attackAction;
+    private readonly List<InputAction> selectActions = new();
+
     private float nextFireTime;
     private Camera mainCamera;
 
-    // --- Ammo system ---
-    private List<Projectile> ammoSlots = new List<Projectile>();
+    // ── Ammo system ─────────────────────────────
+    private readonly List<Projectile> ammoSlots = new();
     private int currentSlotIndex = 0;
     private const int maxSlots = 5;
 
@@ -34,8 +39,8 @@ public class PlayerShoot : MonoBehaviour
         if (mainCamera == null)
             Debug.LogError("No Main Camera found in the scene!");
 
-        // Add default projectile to slot 1
-        if (defaultProjectile != null)
+        // Slot 1 always has default ammo
+        if (defaultProjectile != null && ammoSlots.Count == 0)
             AddAmmo(defaultProjectile);
     }
 
@@ -43,54 +48,51 @@ public class PlayerShoot : MonoBehaviour
     {
         var map = inputActions.FindActionMap("Player");
 
+        // Attack
         attackAction = map.FindAction("Attack");
         attackAction.Enable();
         attackAction.performed += Shoot;
 
-        // Number keys to switch ammo
-        for (int i = 1; i <= 5; i++)
+        // Number keys (1–5)
+        for (int i = 1; i <= maxSlots; i++)
         {
-            int index = i - 1; // slot 0-4
-            var keyAction = map.FindAction($"Select{i}");
-            if (keyAction != null)
-            {
-                keyAction.Enable();
-                keyAction.performed += ctx => SwitchAmmo(index);
-            }
+            int slotIndex = i - 1;
+            var action = map.FindAction($"Select{i}");
+            if (action == null) continue;
+
+            action.Enable();
+            action.performed += _ => SwitchAmmo(slotIndex);
+            selectActions.Add(action);
         }
     }
 
     private void OnDisable()
     {
-        attackAction.performed -= Shoot;
-        attackAction.Disable();
-
-        for (int i = 1; i <= 5; i++)
+        if (attackAction != null)
         {
-            var keyAction = inputActions.FindActionMap("Player")?.FindAction($"Select{i}");
-            if (keyAction != null)
-            {
-                keyAction.performed -= ctx => SwitchAmmo(i - 1);
-                keyAction.Disable();
-            }
+            attackAction.performed -= Shoot;
+            attackAction.Disable();
         }
+
+        foreach (var action in selectActions)
+        {
+            action.Disable();
+        }
+
+        selectActions.Clear();
     }
 
-    public void AddAmmo(Projectile projectile)
+    // ── Ammo management ─────────────────────────
+    public bool AddAmmo(Projectile projectile)
     {
-        if (ammoSlots.Contains(projectile)) return;
-
-        if (ammoSlots.Count >= maxSlots)
-        {
-            // Replace the oldest ammo except slot 1 (default)
-            ammoSlots.RemoveAt(1); // keep slot 0
-        }
+        if (projectile == null) return false;
+        if (ammoSlots.Contains(projectile)) return false;
+        if (ammoSlots.Count >= maxSlots) return false;
 
         ammoSlots.Add(projectile);
-
-        // Auto-select newly added ammo
-        currentSlotIndex = ammoSlots.Count - 1;
+        currentSlotIndex = ammoSlots.Count - 1; // auto-select newest
         UpdateUI();
+        return true;
     }
 
     private void SwitchAmmo(int slotIndex)
@@ -103,19 +105,19 @@ public class PlayerShoot : MonoBehaviour
 
     private void UpdateUI()
     {
-        if (playerUI != null && ammoSlots.Count > 0)
-        {
-            string name = ammoSlots[currentSlotIndex].name;
+        if (playerUI == null || ammoSlots.Count == 0) return;
 
-            if (name.Contains("FrenchFry"))
-                playerUI.SetAmmoType("FrenchFry");
-            else if (name.Contains("Special"))
-                playerUI.SetAmmoType("Special");
-            else
-                playerUI.SetAmmoType("Normal");
-        }
+        string name = ammoSlots[currentSlotIndex].name;
+
+        if (name.Contains("FrenchFry"))
+            playerUI.SetAmmoType("FrenchFry");
+        else if (name.Contains("HotPotato"))
+            playerUI.SetAmmoType("HotPotato");
+        else
+            playerUI.SetAmmoType("Potato");
     }
 
+    // ── Shooting ────────────────────────────────
     private void Shoot(InputAction.CallbackContext context)
     {
         if (BuyMenu.Instance != null && BuyMenu.Instance.IsOpen) return;
@@ -124,29 +126,31 @@ public class PlayerShoot : MonoBehaviour
 
         Projectile projectilePrefab = ammoSlots[currentSlotIndex];
 
-        Rigidbody playerRb = GetComponent<Rigidbody>();
-        Vector3 playerVelocity =
-            playerRb != null ? playerRb.linearVelocity : Vector3.zero;
+        Rigidbody rb = GetComponent<Rigidbody>();
+        Vector3 playerVelocity = rb != null ? rb.linearVelocity : Vector3.zero;
 
         // Aim from screen center
-        Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-
+        Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f));
         Vector3 targetPoint;
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+        if (Physics.Raycast(ray, out RaycastHit hit, 100f, ~shootIgnoreLayer))
+        {
             targetPoint = hit.point;
+        }
         else
+        {
             targetPoint = ray.origin + ray.direction * 100f;
+        }
 
         Vector3 baseDirection = (targetPoint - firePoint.position).normalized;
 
-        // FrenchFry cluster
+        // French Fry = cluster
         if (projectilePrefab.name.Contains("FrenchFry"))
         {
             for (int i = 0; i < fryCount; i++)
             {
-                float angleOffset = Random.Range(-spreadAngle, spreadAngle);
-                Quaternion spreadRot = Quaternion.AngleAxis(angleOffset, Vector3.up);
-                Vector3 spreadDir = spreadRot * baseDirection;
+                float angle = Random.Range(-spreadAngle, spreadAngle);
+                Vector3 spreadDir =
+                    Quaternion.AngleAxis(angle, Vector3.up) * baseDirection;
 
                 Projectile fry = Instantiate(
                     projectilePrefab,
@@ -159,7 +163,6 @@ public class PlayerShoot : MonoBehaviour
         }
         else
         {
-            // Normal single shot
             Projectile bullet = Instantiate(
                 projectilePrefab,
                 firePoint.position,
@@ -171,4 +174,18 @@ public class PlayerShoot : MonoBehaviour
 
         nextFireTime = Time.time + fireRate;
     }
+    /// <summary>Returns the index of a projectile in the ammo slots, or -1 if not found</summary>
+    public int GetAmmoSlotIndex(Projectile projectile)
+    {
+        return ammoSlots.IndexOf(projectile);
+    }
+
+    /// <summary>Select a projectile in the ammo slots by index</summary>
+    public void SelectAmmo(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= ammoSlots.Count) return;
+        currentSlotIndex = slotIndex;
+        UpdateUI();
+    }
+
 }

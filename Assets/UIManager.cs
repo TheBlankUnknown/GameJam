@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // Required if you use TextMeshPro
+using TMPro;
 
 public class PlayerUI : MonoBehaviour
 {
@@ -9,25 +9,25 @@ public class PlayerUI : MonoBehaviour
     public int maxHP = 100;
 
     [Header("Ammo Icon")]
-    public Image ammoIcon;          // UI Image to show current ammo
-    public Sprite PotatoSprite;     // Sprite for normal projectile
-    public Sprite frenchFrySprite;  // Sprite for FrenchFry
-    public Sprite HotPotatoSprite;  // Sprite for third ammo type
+    public Image ammoIcon;
+    public Sprite PotatoSprite;
+    public Sprite frenchFrySprite;
+    public Sprite HotPotatoSprite;
 
     [Header("Money UI")]
-    public TMP_Text moneyText;      // Text to display money (use Text if not TMP)
-    private int money = 0;
+    public TMP_Text moneyText;
 
+    private int money = 0;
     private int currentHP;
 
     void Start()
     {
         currentHP = maxHP;
         UpdateHPBar();
-        UpdateMoneyUI(); // Initialize money display
+        UpdateMoneyUI();
     }
 
-    // --- HP Functions ---
+    // ── HP ─────────────────────────────
     public void SetHP(int hp)
     {
         currentHP = Mathf.Clamp(hp, 0, maxHP);
@@ -40,7 +40,7 @@ public class PlayerUI : MonoBehaviour
             hpBar.value = currentHP;
     }
 
-    // --- Ammo Functions ---
+    // ── Ammo ───────────────────────────
     public void SetAmmoType(string ammoName)
     {
         if (ammoIcon == null) return;
@@ -57,12 +57,12 @@ public class PlayerUI : MonoBehaviour
                 ammoIcon.sprite = HotPotatoSprite;
                 break;
             default:
-                ammoIcon.sprite = PotatoSprite; // fallback
+                ammoIcon.sprite = PotatoSprite;
                 break;
         }
     }
 
-    // --- Money Functions ---
+    // ── Money ──────────────────────────
     public void AddMoney(int amount)
     {
         money += amount;
@@ -75,9 +75,19 @@ public class PlayerUI : MonoBehaviour
         UpdateMoneyUI();
     }
 
+    public int GetMoney()
+    {
+        return money;
+    }
+
+    public string GetMoneyText()
+    {
+        return $"$ {money}";
+    }
+
     private void UpdateMoneyUI()
     {
         if (moneyText != null)
-            moneyText.text = $"$ {money}";
+            moneyText.text = GetMoneyText();
     }
 }
