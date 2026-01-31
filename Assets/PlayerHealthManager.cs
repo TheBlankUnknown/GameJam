@@ -36,7 +36,7 @@ public class PlayerHealth : MonoBehaviour
         }
         else
         {
-            audioManager.PlaySFX(2);
+            audioManager.PlaySFX(Random.Range(6, 9));
         }
     }
 
