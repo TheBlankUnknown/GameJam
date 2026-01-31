@@ -4,7 +4,7 @@ public class PowerUpDrop : MonoBehaviour
 {
     [Header("Drop Chance")]
     [Range(0f, 1f)]
-    public float dropChance = 0.1f;
+    public float dropChance = 0.3f;
 
     [Header("PowerUp Prefabs")]
     public GameObject biggerBulletsPrefab;
